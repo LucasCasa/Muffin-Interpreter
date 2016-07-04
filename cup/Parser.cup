@@ -1,0 +1,170 @@
+package Example;
+
+import java_cup.runtime.*;
+import java.util.*;
+import java.io.*;
+
+action code {:
+	//VarList variables = new VarList();
+	OP_manager opm = new OP_manager();
+:};
+parser code {:
+	public static void main(String args[]) throws Exception {
+		SymbolFactory sf = new DefaultSymbolFactory();
+		if (args.length==0) new Parser(new Scanner(System.in,sf),sf).parse();
+		else new Parser(new Scanner(new java.io.FileInputStream(args[0]),sf),sf).parse();
+	}
+:}
+
+terminal SEMI, PLUS, TIMES, LPAREN, RPAREN,MINUS,POW,MOD,TRUE,FALSE,AND,OR,NOT,DIV,ASSIGN;
+terminal EQUALS,PRINTER,IF,DOLLAR,LBRACKET,RBRACKET,SLBRACKET,SRBRACKET,ELSE,WHILE,COMMA,RETURN,READ,RAND,VOID;
+terminal LT,GT,LE,GE,EQ,DIFF;
+terminal INT,STR,BOOL,DOUB, AINT,ASTR,ABOOL,ADOUB; //types
+terminal String  LIT;
+terminal Integer NUMBER;
+terminal Boolean BOOLEAN;
+terminal Double  DOUBLE;
+terminal String VAR;
+
+
+non terminal startp;
+//non terminal AVar expr;
+//non terminal Cond condition;
+non terminal String stri;
+non terminal String logic;
+non terminal String compare;
+non terminal Expression dec;
+non terminal Expression arrayDec;
+non terminal Type type;
+non terminal StmtList stmtList;
+non terminal String print;
+non terminal Operator op;
+non terminal VarList varlist;
+non terminal Statement statement;
+non terminal Expression expr;
+non terminal Function function;
+non terminal SuperClass program;
+non terminal ArrayList<Param> params;
+non terminal Body body;
+non terminal ArrayList<Expression> expr_list;
+
+precedence left NOT;
+precedence left OR,AND;
+precedence left LT,GT,LE,GE,EQ,DIFF;
+precedence left INT;
+precedence left PLUS,MINUS;
+precedence left DIV,TIMES,MOD;
+precedence left POW;
+precedence left DOUBLE;
+precedence left VAR;
+
+
+//precedence left SPRINTER,FPRINTER;
+
+startp			::= program:c {: c.start(); :};
+
+program   	::= function:f program {: SuperClass.getInstance().add(f);RESULT =SuperClass.getInstance(); :}
+					| /*EMPTY*/{: RESULT= SuperClass.getInstance(); :} ;
+
+function	::= type:t VAR:n LPAREN params:p RPAREN LBRACKET body:b RETURN expr:e SEMI RBRACKET {: RESULT=new Function(t,n,p,b,e); :}
+				 |type:t VAR:n LPAREN VOID RPAREN LBRACKET body:b RETURN expr:e SEMI RBRACKET {: RESULT=new Function(t,n,new ArrayList<Param>(),b,e); :};
+
+params		::= type:t VAR:n COMMA params:p {: p.add(new Param(t,n)); RESULT=p; :}
+					 |type:t VAR:n {: RESULT= new ArrayList<Param>();RESULT.add(new Param(t,n));:}/*EMPTY*/ ;
+
+body			::= varlist:vl stmtList:sl {: RESULT=new Body(vl,sl); :};
+
+varlist		::= varlist:vl dec:d {: vl.add(d);RESULT = vl; :}
+							| varlist:vl arrayDec:d {: vl.add(d);RESULT = vl; :}
+							| {: RESULT = new VarList();:};
+
+dec  			::= type:t VAR:v1 EQUALS expr:e SEMI{: RESULT = ExpressionFactory.define(t,v1,e);/*variables.put((String)v1,e);*/ :};
+
+arrayDec ::= type:t VAR:v1 SEMI {: RESULT = ExpressionFactory.define(t,v1); :};
+
+stmtList 	::= stmtList:sl statement:s {: sl.add(s); RESULT = sl; :}
+								| {: RESULT=new StmtList(); :};
+
+statement ::= SEMI {: RESULT = StatementFactory.empty(); :}
+							| VAR:v1 EQUALS expr:e SEMI {: RESULT = StatementFactory.assign((String)v1,e);:}
+							| VAR:v1 SLBRACKET expr:e1 SRBRACKET EQUALS expr:e2 SEMI {: RESULT = StatementFactory.assign((String)v1,e1,e2);:}
+							| VAR:v1 ASSIGN expr:e SEMI {: RESULT = StatementFactory.assignArray((String)v1,e);:}
+							| VAR:n PLUS PLUS SEMI{: RESULT= StatementFactory.assign((String)n,ExpressionFactory.operation(ExpressionFactory.variable(n),ExpressionFactory.integer(1),Operator.plus_op));:}
+							| VAR:n MINUS MINUS SEMI{: RESULT= StatementFactory.assign((String)n,ExpressionFactory.operation(ExpressionFactory.variable(n),ExpressionFactory.integer(1),Operator.minus_op));:}
+							| READ VAR:v SEMI{: RESULT = StatementFactory.read((String)v);:}
+							| PRINTER expr:e {: RESULT = StatementFactory.print(e); :}
+							//| PRINTER condition:c {: RESULT = StatementFactory.print(c); :}
+							| IF LPAREN expr:c RPAREN LBRACKET stmtList:sl RBRACKET {: RESULT = StatementFactory.ifThen(c,sl); :}
+							| IF LPAREN expr:c RPAREN LBRACKET stmtList:sl1 RBRACKET ELSE LBRACKET stmtList:sl2 RBRACKET {: RESULT = StatementFactory.ifElse(c,sl1,sl2);:}
+							| WHILE LPAREN expr:c RPAREN LBRACKET stmtList:sl1 RBRACKET {: RESULT = StatementFactory.doWhile(c,sl1);:}
+							| VAR:n LPAREN expr_list:el RPAREN {: RESULT = StatementFactory.exec(ExpressionFactory.callFunc(n,el));:}
+							| VAR:n LPAREN VOID RPAREN {:RESULT = StatementFactory.exec(ExpressionFactory.callFunc(n,new ArrayList<Expression>())); :}
+							//| VAR:n LPAREN VOID RPAREN {:RESULT = StatementFactory.exec(ExpressionFactory.callFunc(n,new ArrayList<Expression>())); :}
+							//| expr:e SEMI {: RESULT = StatementFactory.exec(e);:}
+						;
+
+expr_list ::= 		| expr:e {: RESULT = new ArrayList<Expression>(); RESULT.add(e); :}
+						| expr:e COMMA expr_list:el {:el.add(e);RESULT=el; :}
+							//|	{: RESULT = new ArrayList<Expression>(); :};
+							;
+
+expr      ::= 		  NUMBER:n {: RESULT= ExpressionFactory.integer(n); :}
+				  		| DOUBLE:d  {: RESULT= ExpressionFactory.doubl(d); :}
+						| BOOLEAN:b {: RESULT= ExpressionFactory.bool(b); :}
+						| VAR:v1 SLBRACKET expr:e SRBRACKET{: RESULT = ExpressionFactory.get(v1,e);:}
+						| VAR:n {: RESULT= ExpressionFactory.variable(n);:}
+						| MINUS expr:e {: RESULT = ExpressionFactory.negative(e);:}
+            | expr:l op:o expr:r {:RESULT= ExpressionFactory.operation(l,r,o);:}
+	    			| LPAREN expr:e RPAREN {: RESULT=e; :}
+						| DOLLAR VAR:v1 {: RESULT = ExpressionFactory.length(v1);:}
+						| LIT:l {: RESULT= ExpressionFactory.string(l.substring(1,l.length() -1)); :}
+						| RAND LPAREN expr:e RPAREN {:  RESULT = ExpressionFactory.random(e);:}
+						| TRUE:t {:RESULT = ExpressionFactory.bool(true); :}
+						| FALSE:f {: RESULT = ExpressionFactory.bool(false); :}
+						| expr:l compare:c expr:r {: RESULT = ExpressionFactory.compare(l,r,c);:}
+						| expr:l logic:c expr:r {:RESULT= ExpressionFactory.logic(l,r,c); :}
+						| NOT expr:e {: RESULT=ExpressionFactory.not(e); :}
+						| VAR:n LPAREN expr_list:el RPAREN {: RESULT = ExpressionFactory.callFunc(n,el);:}
+						| VAR:n LPAREN VOID RPAREN {:RESULT = ExpressionFactory.callFunc(n,new ArrayList<Expression>()); :}
+						//| BOOLEAN:b {: RESULT=:}
+						;
+
+/*print 		::= PRINTER expr:e {: ;RESULT = (e.execute().value.toString());:} SEMI
+							| PRINTER condition:e {: RESULT = (e.eval().toString()); :}  SEMI;*/
+
+/*stri 			::= LIT:e 	{: RESULT=e.substring(1,e.length() -1); System.out.println("String: " + e); :}
+							| LIT:l PLUS LIT:r {:RESULT= StringOP.operate(l,r); :}
+							| LIT:l PLUS VAR:r {:RESULT= StringOP.operate(l,variables.getV(r).value); :}
+							| VAR:l PLUS LIT:r {:RESULT= StringOP.operate(variables.getV(l).value,r); :}
+							| VAR:l PLUS VAR:r {: System.out.println("llega");RESULT= StringOP.operate(variables.getV(l).value,variables.getV(r).value); :};*/
+//expr_part ::= expr:e {: System.out.println("R = "+e+";"); :} SEMI | condition:e {: System.out.println("R = "+e+";"); :} SEMI;
+
+logic 		::= 	AND	{:  RESULT = "AND"; :}
+ 							| OR 	{:  RESULT = "OR" ; :};
+
+compare		::=     LT {: RESULT = "<";:}
+								| GT {: RESULT = ">";:}
+								| LE {: RESULT = "<=";:}
+								| GE {: RESULT = ">=";:}
+								| EQ {: RESULT = "==";:}
+								| DIFF {: RESULT = "!=";:};
+
+//condicional ::= IF LPAREN condition:c RPAREN LBRACKET stmtList:b RBRACKET {:  :}
+
+type 			::= INT {: RESULT = Type.i; :}
+							| STR {: RESULT = Type.s; :}
+							| BOOL {: RESULT = Type.b; :}
+							| DOUB {: RESULT = Type.d; :}
+							|	AINT {: RESULT = Type.ai;:}
+							| ASTR {: RESULT = Type.as;:}
+							| ABOOL {: RESULT = Type.ab;:}
+							| ADOUB {: RESULT = Type.ad;:}
+							;
+
+op				::= PLUS   {: RESULT = Operator.plus_op; :}
+							| MINUS {: RESULT = Operator.minus_op; :}
+							| TIMES {: RESULT = Operator.times_op; :}
+							| MOD {: RESULT = Operator.mod_op; :}
+							| POW {: RESULT = Operator.pow_op; :}
+							| DIV {: RESULT = Operator.div_op; :}
+			;

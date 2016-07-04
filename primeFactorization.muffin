@@ -1,0 +1,34 @@
+int muffin(void){ /*Calcula la factorizacion en primos del input */
+   ints divisors;
+   int i = 2;
+   int input = 0;
+   >>"Ingrese Numero a factorizar";
+   <<input;
+
+   while(i <= input){
+
+      while((input % i) == 0){
+         divisors <- i;
+         input = input / i;
+      }
+      i = getNextPrime(i);
+   }
+   >>"La descomposicion es:";
+   >> divisors;
+return 0;
+}
+
+int getNextPrime(int prime){
+   int i = 2;
+   prime++;
+
+   while((i**2) <= prime){
+      if((prime % i) == 0){
+         prime++;
+         i = 2;
+      }else{
+         i++;
+      }
+   }
+   return prime;
+}

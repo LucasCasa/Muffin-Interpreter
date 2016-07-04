@@ -1,0 +1,27 @@
+int muffin(void){ /*  Esta hecho de forma recursiva para mostrar que se puede*/
+   double input = 0;
+   int aux = 0;
+   >>"Ingresar valor para calcular el factorial";
+   <<input;
+   aux = input;
+   if(input < 0){
+      >>"Valor no valido";
+   }else{
+      if(input == 0){
+         >>"0! = 1";
+      }else{
+         >>aux + "! = " + fact(input);
+      }
+   }
+   return 0;
+}
+
+double fact(double i){
+   double res = 0;
+   if(i == 1){
+      res = 1;
+   }else{
+      res = i * fact(i-1);
+   }
+   return res;
+}

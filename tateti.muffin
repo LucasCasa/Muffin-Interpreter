@@ -1,0 +1,167 @@
+int muffin(void){
+	strings row1;
+	strings row2;
+	strings row3;
+	int player = 1;
+	int r = 69;
+	int c = 69;
+	int end = 0;
+	int winner = 0;
+	int input = 0;
+	int valid = 0;
+	int plays = 0;
+
+	row1 <- "-";
+	row1 <- "-";
+	row1 <- "-";
+	row2 <- "-";
+	row2 <- "-";
+	row2 <- "-";
+	row3 <- "-";
+	row3 <- "-";
+	row3 <- "-";
+
+	>>"Ingrese la casilla en el formato filaColumna (ej: 31, 11, 23, etc.)";
+
+	print(row1,row2,row3);
+
+	while((winner == 0) AND (plays<9)){
+		r = -1;
+		c = -1;
+		valid = 0;
+		>>"Turno del jugador " + player;
+		while(valid==0){
+			<<input;
+			r = (input / 10) - 1;
+			c = (input % 10) - 1;
+			if(NOT((r<0) OR (r>3) OR (c<0) OR (c>3))){
+				valid = isEmpty(row1,row2,row3,r,c);
+			}
+		}
+
+		place(row1,row2,row3,r,c,player);
+		print(row1,row2,row3);
+
+		end = checkWin(row1,row2,row3);
+		if(end != 0){
+			winner = player;
+		}
+
+		if(player == 1){
+			player = 2;
+		}else{
+			player = 1;
+		}
+		plays = plays + 1;
+	}
+	if(winner == 0){
+		>>"Empate";
+	}else{
+		>>"Gano el jugador " + winner;
+	}
+	return 0;
+}
+
+int print(strings row1, strings row2, strings row3){
+	>>row1;
+	>>row2;
+	>>row3;
+
+	return 0;
+}
+
+int isEmpty(strings row1, strings row2, strings row3, int r, int c){
+	int empty = 0;
+	strings aux;
+	if(r == 0){
+		aux = row1;
+	}
+	if(r == 1){
+		aux = row2;
+	}
+	if(r == 2){
+		aux = row3;
+	}
+	if(aux [ c ] == "-"){
+		empty = 1;
+	}
+	return empty;
+}
+
+int place(strings row1, strings row2, strings row3, int r, int c, int player){
+	string s1 = "x";
+	string s2 = "o";
+	strings aux;
+	if(r == 0){
+		aux = row1;
+	}
+	if(r == 1){
+		aux = row2;
+	}
+	if(r == 2){
+		aux = row3;
+	}
+
+	if(player == 1){
+		aux [ c ] = s1;
+	}else{
+		aux [ c ] = s2;
+	}
+	
+	return 0;
+}
+
+int checkWin(strings row1, strings row2, strings row3){
+	int win = 0;
+	string s = getChar(row1,row2,row3,1,1);
+	if(s != "-"){
+		if((getChar(row1,row2,row3,0,0) == s) AND (getChar(row1,row2,row3,2,2) == s)){
+			win = 1;
+		}
+		if((getChar(row1,row2,row3,2,0) == s) AND (getChar(row1,row2,row3,0,2) == s)){
+			win = 1;
+		}
+		if((getChar(row1,row2,row3,0,1) == s) AND (getChar(row1,row2,row3,2,1) == s)){
+			win = 1;
+		}
+		if((getChar(row1,row2,row3,1,0) == s) AND (getChar(row1,row2,row3,1,2) == s)){
+			win = 1;
+		}
+	}
+	s = getChar(row1,row2,row3,0,0);
+	if(s != "-"){
+		if((getChar(row1,row2,row3,1,0) == s) AND (getChar(row1,row2,row3,2,0) == s)){
+			win = 1;
+		}
+		if((getChar(row1,row2,row3,0,1) == s) AND (getChar(row1,row2,row3,0,2) == s)){
+			win = 1;
+		}
+	}
+	s = getChar(row1,row2,row3,2,2);
+	if(s != "-"){
+		if((getChar(row1,row2,row3,0,2) == s) AND (getChar(row1,row2,row3,1,2) == s)){
+			win = 1;
+		}
+		if((getChar(row1,row2,row3,2,0) == s) AND (getChar(row1,row2,row3,2,1) == s)){
+			win = 1;
+		}
+	}
+	return win;
+}
+
+string getChar(strings row1, strings row2, strings row3, int r, int c){
+	string s = "";
+	strings aux;
+	if(r == 0){
+		aux = row1;
+	}
+	if(r == 1){
+		aux = row2;
+	}
+	if(r == 2){
+		aux = row3;
+	}
+	s = aux [ c ];
+	return s;
+}
+

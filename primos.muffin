@@ -1,0 +1,15 @@
+int muffin(void){ /* Los Calcula primos*/
+  int i = 2;
+  str res = " es primo";
+  int input = 0;
+  >> "Ingrese valor a calcular primo";
+  << input;
+    while((i**2) <= input){
+      if((input % i)  == 0){
+        res = " no es primo";
+      }
+      i++;
+    }
+    >> input + res;
+  return 0;
+}

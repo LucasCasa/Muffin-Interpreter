@@ -1,0 +1,28 @@
+int muffin(void){ /* Te calcula el fibonacci */
+  int res = 0;
+  int input = 0;
+  int i = 0;
+  int a1 = 1;
+  int a2 = 0;
+  >>"Ingrese valor";
+  << input;
+  while(i<input){
+    if((i % 2) == 0){
+      a1 = a1 + a2;
+    }else{
+      a2 = a1 + a2;
+    }
+    if(i == 1){
+      a1 = 1;
+      a2 = 0;
+    }
+    if(i == 2){
+      a1 = 1;
+      a2 = 1;
+    }
+    i = i+1;
+  }
+  res = a1 + a2;
+  >> res;
+  return res;
+}

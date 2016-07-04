@@ -1,0 +1,44 @@
+int muffin(void){ /* Los Calcula primos*/
+  int input = 0;
+  int aux = 0;
+  int base = 0;
+  str res = "";
+  >>"ingrese base (hasta 16)";
+  <<base;
+  >>"ingrese numero";
+  <<input;
+  aux = input;
+  while(input != 0){
+     res = get_char(input % base) + res ;
+     input = input / base;
+ }
+ >> aux + " en base " + base + " = " + res;
+ return 0;
+}
+
+str get_char(int num){
+   str res = "";
+   if(num <= 9){
+      res = "" + num;
+   }else{
+      if(num == 10){
+         res = "A";
+      }
+      if(num == 11){
+         res = "B";
+      }
+      if(num == 12){
+         res = "C";
+      }
+      if(num == 13){
+         res = "D";
+      }
+      if(num == 14){
+         res = "E";
+      }
+      if(num == 15){
+         res = "F";
+      }
+   }
+   return res;
+}

@@ -1,0 +1,63 @@
+/* Piedra papel o tijera*/
+
+int muffin(void){
+	strings weapons;
+	int human = 0;
+	int computer = 0;
+	int result = 0;
+	int select = 69;
+	weapons <- "Piedra";
+	weapons <- "Papel";
+	weapons <- "Tijeras";
+
+	>>"Elija: 1 - " + weapons [ 0 ] + " | 2 - " + weapons [ 1 ] + " | 3 - " + weapons [ 2 ];
+
+	while((select<1) OR (select>3)){
+		<<select;
+	}
+	select = select - 1;
+	computer = rand(3);
+
+	>>weapons [ human ] + " vs " + weapons [ computer ];
+
+	result = checkWinner(human,computer);
+
+	if(result==0){
+		>>"Empate";
+	}else{
+		if(result==1){
+			>>"Perdiste";
+		}else{
+			>>"Ganaste";
+		}
+	}
+	return 0;
+}
+
+/* 2 win human, 0 tie, 1 win computer */
+int checkWinner(int human, int computer){
+	int ans = 0;
+	if(human == computer){
+		ans = 0;
+	}else{
+		if((human==0) AND (computer==1)){
+			ans = 1;
+		}
+		if((human==0) AND (computer==2)){
+			ans = 2;
+		}
+		if((human==1) AND (computer==0)){
+			ans = 2;
+		}
+		if((human==1) AND (computer==2)){
+			ans = 1;
+		}
+		if((human==2) AND (computer==0)){
+			ans = 1;
+		}
+		if((human==2) AND (computer==1)){
+			ans = 2;
+		}
+	}
+	return ans;
+}
